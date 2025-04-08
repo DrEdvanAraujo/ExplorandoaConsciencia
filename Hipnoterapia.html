@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Explorando a consciência</title>
+    <style>
+        /* --- CSS (Mostly Unchanged from previous) --- */
+        body, html { margin: 0; padding: 0; overflow: hidden; background-color: #000; color: #eee; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        #container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; cursor: default; }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.75); display: none; justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(5px); }
+        .modal-content { background: linear-gradient(145deg, #2e2e2e, #1e1e1e); padding: 30px 40px; border-radius: 12px; border: 1px solid #444; max-width: 650px; width: 85%; box-shadow: 0 8px 25px rgba(0,0,0,0.6); position: relative; color: #f0f0f0; animation: fadeInModal 0.3s ease-out; }
+        @keyframes fadeInModal { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+        #modal-text-content h4 { margin-top: 0; padding-bottom: 12px; margin-bottom: 20px; border-bottom: 2px solid; font-size: 1.3em; text-align: center; }
+        .meditation-text { line-height: 1.7; margin-bottom: 25px; font-size: 1.05em; }
+        .meditation-text strong { color: #66ff66; display: block; margin-top: 10px; margin-bottom: 5px; }
+        #mission-interaction-area { margin-top: 25px; text-align: center; }
+        .meditation-button { background: linear-gradient(to right, #4CAF50, #66BB6A); border: none; color: white; padding: 14px 30px; text-align: center; text-decoration: none; display: inline-block; font-size: 17px; border-radius: 25px; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 8px rgba(0,0,0,0.3); }
+        .meditation-button:hover { background: linear-gradient(to right, #45a049, #5CCA5C); box-shadow: 0 6px 12px rgba(0,0,0,0.4); transform: translateY(-2px); }
+        .meditation-button:active { transform: translateY(0px); box-shadow: 0 2px 4px rgba(0,0,0,0.3); }
+        .modal-close-button { position: absolute; top: 15px; right: 20px; background: none; border: none; font-size: 28px; font-weight: bold; color: #aaa; cursor: pointer; transition: color 0.2s ease; z-index: 1001; }
+        .modal-close-button:hover { color: #fff; }
+        #final-guidance-box { position: fixed; bottom: 10%; left: 50%; transform: translateX(-50%); width: 80%; max-width: 700px; background-color: rgba(10, 10, 20, 0.85); color: #e0e0ff; padding: 25px; border-radius: 10px; border: 1px solid rgba(100, 100, 255, 0.5); box-shadow: 0 0 20px rgba(100, 100, 255, 0.3); text-align: center; z-index: 1100; display: none; font-size: 1.1em; line-height: 1.6; backdrop-filter: blur(3px); }
+        #final-guidance-box strong { color: #ffff99; display: block; margin-top: 15px; font-size: 1.2em; }
+        #final-guidance-box a { color: #99ccff; text-decoration: underline; }
+        #final-guidance-box a:hover { color: #cceeff; }
+        #level-indicator { position: fixed; bottom: 15px; left: 15px; background-color: rgba(0, 0, 0, 0.7); padding: 10px 18px; border-radius: 8px; font-size: 15px; z-index: 500; border: 1px solid #333; box-shadow: 0 2px 5px rgba(0,0,0,0.4); }
+        #level-indicator span { font-weight: bold; display: inline-block; min-width: 50px; text-align: left; }
+        #audio-status { position: fixed; bottom: 15px; right: 15px; background-color: rgba(0, 0, 0, 0.7); padding: 10px 18px; border-radius: 8px; font-size: 14px; z-index: 500; color: #ffcc00; display: none; border: 1px solid #333; box-shadow: 0 2px 5px rgba(0,0,0,0.4); }
+        /* --- End of CSS --- */
+    </style>
+</head>
+<body>
+    <div id="container"></div>
+
+    <div id="modal" class="modal-overlay">
+        <div class="modal-content">
+            <div id="modal-text-content"></div>
+            <div id="mission-interaction-area"></div>
+            <button id="close-modal" class="modal-close-button" title="Fechar (cancela interação atual)">×</button>
+        </div>
+    </div>
+
+    <div id="final-guidance-box"></div>
+
+    <div id="level-indicator">
+        Nível: <span id="current-level-name">Carregando...</span>
+    </div>
+    <div id="audio-status">Preparando áudio...</div>
+
+
+    <audio id="bg-audio-0" loop preload="auto" src="https://raw.githubusercontent.com/DrEdvanAraujo/SimuladorConstelador/main/synthesizer-fantasy-308299.mp3"></audio>
+    <audio id="bg-audio-1" loop preload="auto" src="https://raw.githubusercontent.com/DrEdvanAraujo/SimuladorConstelador/main/synthesizer-fantasy-308299.mp3"></audio>
+    <audio id="bg-audio-2" loop preload="auto" src="https://raw.githubusercontent.com/DrEdvanAraujo/SimuladorConstelador/main/synthesizer-fantasy-308299.mp3"></audio>
+    <audio id="bg-audio-3" loop preload="auto" src="https://raw.githubusercontent.com/DrEdvanAraujo/SimuladorConstelador/main/synthesizer-fantasy-308299.mp3"></audio>
+    <audio id="bg-audio-4" loop preload="auto" src="https://raw.githubusercontent.com/DrEdvanAraujo/SimuladorConstelador/main/synthesizer-fantasy-308299.mp3"></audio>
+    <audio id="bg-audio-5" loop preload="auto" src="https://raw.githubusercontent.com/DrEdvanAraujo/SimuladorConstelador/main/synthesizer-fantasy-308299.mp3"></audio>
+    <audio id="bg-audio-6" loop preload="auto" src="https://raw.githubusercontent.com/DrEdvanAraujo/SimuladorConstelador/main/synthesizer-fantasy-308299.mp3"></audio>
+    <audio id="bg-audio-7" loop preload="auto" src="https://raw.githubusercontent.com/DrEdvanAraujo/SimuladorConstelador/main/synthesizer-fantasy-308299.mp3"></audio>
+    
+
+    <script type="importmap">
+        { "imports": { "three": "https://unpkg.com/three@0.161.0/build/three.module.js" } }
+    </script>
+
+    <script type="module">
+        import * as THREE from 'three';
+
+        // --- Constants (Adjusted for 9 levels) ---
+        const LEVEL_COUNT = 9; // <<< Ajustado para 9 níveis
+        const LEVEL_SEGMENT_LENGTH = 90;
+        const PARTICLE_COUNT_PER_SEGMENT = 500;
+        const TUNNEL_RADIUS = 18;
+        const BASE_CAMERA_SPEED = 0.095;
+        const INTERACTION_DISTANCE = 8;
+        const START_BUFFER = 30;
+        const FINAL_FOCUS_Z = (LEVEL_COUNT * LEVEL_SEGMENT_LENGTH) + 50;
+        const FINAL_ANIMATION_SPEED = 1.0;
+        const FINAL_ARRIVAL_DISTANCE = 0.5;
+        const AUDIO_FADE_DURATION = 1500; // milliseconds for background audio fade
+
+        // --- NEW: Zoom Constants ---
+        const MIN_FOV = 10; // Minimum Field of View (zoomed in)
+        const MAX_FOV = 100; // Maximum Field of View (zoomed out)
+        const ZOOM_SENSITIVITY = 2; // How much FOV changes per wheel tick
+
+        const CHAKRA_COLORS = [
+            0xFF0000, // Raiz (Vermelho)
+            0xFF7F00, // Sacral (Laranja) - Associado à Mente Neutra/Equilíbrio aqui
+            0xFFFF00, // Plexo Solar (Amarelo) - Associado ao Fator Crítico/Análise aqui
+            0x00FF00, // Cardíaco (Verde) - Associado à Percepção/Abertura aqui
+            0x00BFFF, // Laríngeo (Azul Claro) - Associado à Suavização/Expressão aqui
+            0x0000FF, // Frontal (Azul Índigo) - Associado à Superfície Subconsciente/Intuição aqui
+            0x4B0082, // Frontal Profundo (Índigo Escuro) - Associado às Profundezas Subconscientes
+            0x8A2BE2, // Coronário (Violeta) - Associado ao Núcleo Inconsciente
+            0xFFFFFF  // Ponto de Conexão (Branco/Dourado) - Nova Cor para o 9º Nível
+        ];
+
+
+        // --- Data Definitions (9 Levels) ---
+        const LEVEL_DATA = [];
+        let currentZData = -START_BUFFER;
+        // Nomes ajustados para 9 níveis
+        const levelNames = [
+            "Consciente Sensorial", "Mente Neutra", "Fator Crítico", "Percebendo o Filtro",
+            "Suavizando o Guardião", "Superfície Subconsciente", "Profundezas Subconscientes",
+            "Núcleo Inconsciente", "Conexão Superior"
+        ];
+        for (let i = 0; i < LEVEL_COUNT; i++) {
+            LEVEL_DATA.push({
+                name: levelNames[i], color: CHAKRA_COLORS[i], missionKey: `level_${i}`,
+                startZ: currentZData, endZ: currentZData + LEVEL_SEGMENT_LENGTH, index: i
+            });
+            currentZData += LEVEL_SEGMENT_LENGTH;
+        }
+
+        // --- Mission Data (Adjusted for 9 Levels) ---
+        const MISSION_DATA = {};
+        const deepeningTexts = [
+            "Você está pronto para explorar a mente?", // Nível 0 - Preparação
+            "Concentre na sua respiração... sinta o ar entrando... e saindo...", // Nível 1 - Sensorial
+            "Atenção plena aos sentidos... sinta a temperatura... os sons... a presença do corpo...", // Nível 2 - Neutra
+            "Observe os pensamentos... como nuvens passando... alguns avaliam... apenas observe...", // Nível 3 - Fator Crítico
+            "A cada respiração... o filtro se suaviza... a mente se abre... mais receptiva...", // Nível 4 - Percebendo Filtro
+            "Navegando suavemente... nas águas das emoções... reconhecendo padrões... com aceitação...", // Nível 5 - Suavizando Guardião
+            "Descendo às profundezas... onde memórias e programações residem... observe com clareza...", // Nível 6 - Superfície Subconsciente
+            "Silêncio... quietude... a inteligência vital pulsando... conectando com a essência...", // Nível 7 - Profundezas Subconscientes
+            "No coração do inconsciente... sinta a conexão com o todo... a fonte...", // Nível 8 - Núcleo Inconsciente
+            "Expandindo a consciência... além dos limites... integrando a experiência..." // Nível 9 - Conexão Superior (NOVO)
+        ];
+        const missionDescriptions = [
+            `Prepare-se para explorar as camadas da consciência!<br><strong>Comando:</strong> Respire fundo 3 vezes e permita-se iniciar.`, // Nível 0
+            `A mente consciente percebe através dos sentidos.<br><strong>Comando:</strong> Sinta seu corpo. Ouça os sons sutis. Esteja presente nas sensações atuais.`, // Nível 1
+            `A mente neutra é um estado de equilíbrio interior... Ela não toma partido entre o positivo ou o negativo... apenas contempla... compreende e responde com sabedoria.<br><strong>Comando:</strong> Observe um pensamento ou sensação sem julgá-lo bom ou ruim. Apenas esteja com ele.`, // Nível 2
+            `Reconheça o fator crítico, o guardião que analisa.<br><strong>Comando:</strong> Observe pensamentos que julgam ou duvidam. Apenas perceba este filtro, sem se identificar.`, // Nível 3
+            `Com relaxamento, o filtro se torna permeável.<br><strong>Comando:</strong> Imagine a barreira mental como névoa suave. Afirme: 'Estou aberto(a) a explorar'.`, // Nível 4
+            `Entrando no subconsciente: emoções e hábitos.<br><strong>Comando:</strong> Permita que uma emoção ou padrão surja. Observe com curiosidade, sem julgamento.`, // Nível 5
+            `Memórias de longo prazo e programações centrais.<br><strong>Comando:</strong> Convide uma memória ou crença antiga. Observe a sensação associada, com distanciamento.`, // Nível 6
+            `A mente subconsciente é como um grande arquivo invisível que armazena tudo o que vivemos — memórias, emoções, crenças, hábitos e condicionamentos.<br><strong>Comando:</strong> Mergulhe na quietude e perceba as sensações mais profundas que emergem.`, // Nível 7
+            `Conecte-se com a consciência superior, O inconsciente não fala com palavras; ele se comunica por sensações, imagens, intuições e reações instintivas.<br><strong>Comando:</strong> Sinta a vastidão interior, a fonte de sabedoria e intuição pura.`, // Nível 8
+            `Integrando todas as camadas da mente. A consciência se expande.<br><strong>Comando:</strong> Sinta gratidão pela jornada e pela clareza adquirida. Reconheça sua totalidade.` // Nível 9 (NOVO)
+        ];
+        for (let i = 0; i < LEVEL_COUNT; i++) {
+            MISSION_DATA[`level_${i}`] = {
+                title: `Explorando ${levelNames[i]}`,
+                description: missionDescriptions[i],
+                deepeningAudioText: deepeningTexts[i]
+            };
+        }
+
+
+        // --- Global Variables ---
+        let scene, camera, renderer, clock;
+        let particleSystems = [];
+        let interactionObjects = [];
+        let missionObjects = {};
+        let finalMissionTriggerObject = null;
+        let finalFocusPointObject = null;
+        let portugueseVoice = null;
+        let voicesLoaded = false;
+        let backgroundAudioElements = []; // Array for <audio> elements
+        let currentBackgroundAudioIndex = -1; // Index of currently playing background audio
+        let fadeIntervals = {}; // To manage fade in/out intervals
+
+        const gameState = {
+            currentLevelIndex: -1, // Represents the *visual* level the camera is in
+            maxUnlockedLevelIndex: 0,
+            missionsCompleted: {},
+            cameraSpeed: BASE_CAMERA_SPEED,
+            isModalOpen: false,
+            isAudioPlaying: false, // Flag for TTS guide audio
+            pendingModalLevelIndex: null, // Index of the modal to show after TTS ends
+            isFinalAnimationPlaying: false,
+            finalFocusReached: false,
+            finalGuidanceActive: false // <<< Flag para saber se a caixa final já foi mostrada
+        };
+
+        // --- UI Elements Refs ---
+        const uiElements = {
+            container: document.getElementById('container'),
+            modal: document.getElementById('modal'),
+            modalContent: document.getElementById('modal-text-content'),
+            missionInteractionArea: document.getElementById('mission-interaction-area'),
+            closeModalButton: document.getElementById('close-modal'),
+            finalGuidanceBox: document.getElementById('final-guidance-box'), // <<< Referência mantida
+            levelIndicator: document.getElementById('level-indicator'),
+            currentLevelName: document.getElementById('current-level-name'),
+            audioStatus: document.getElementById('audio-status')
+            // npcTextBox reference removida
+        };
+
+        // --- Initialization ---
+        function init() {
+            scene = new THREE.Scene();
+            scene.fog = new THREE.FogExp2(0x000000, 0.0015);
+            // Initialize camera with default FOV
+            camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, FINAL_FOCUS_Z + 150);
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.outputColorSpace = THREE.SRGBColorSpace;
+            uiElements.container.appendChild(renderer.domElement);
+
+            clock = new THREE.Clock();
+
+            // Lighting
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.8); scene.add(ambientLight);
+            const hemiLight = new THREE.HemisphereLight(0xccccff, 0x444400, 0.5); scene.add(hemiLight);
+            const pointLight = new THREE.PointLight(0xffffff, 0.8, 250); camera.add(pointLight); scene.add(camera);
+
+            camera.position.set(0, 0, LEVEL_DATA[0].startZ - START_BUFFER);
+
+            createLevelSegments();
+            createInteractionObjects();
+            createFinalFocusPointObject();
+            initializeBackgroundAudio(); // Get audio element refs
+
+            setupUIEventListeners(); // <-- Mouse wheel listener will be added here
+            loadVoices();
+            updateUI(); // Initial UI state
+            updateBackgroundAudio(-1); // Start silent.
+
+            // Attempt to start audio context on first interaction
+            document.body.addEventListener('click', resumeAudioContext, { once: true });
+            document.body.addEventListener('touchstart', resumeAudioContext, { once: true });
+
+
+            animate();
+
+            window.addEventListener('resize', onWindowResize);
+            // window.addEventListener('keydown', handleKeyPress); // Listener removido
+            console.log(`Initialization complete. ${LEVEL_COUNT} Levels.`);
+        }
+
+         // Try to resume audio context after user interaction
+         function resumeAudioContext() {
+             console.log("User interaction detected, attempting to resume audio context.");
+             backgroundAudioElements.forEach(audio => {
+                   if (audio && audio.hasValidSource && audio.paused && audio.volume > 0.01) { // Check if audio exists and has source
+                       audio.play().catch(e => console.warn("Audio play failed:", e));
+                   }
+             });
+              // Also try to wake up speech synthesis if needed
+               if ('speechSynthesis' in window && speechSynthesis.paused) {
+                    speechSynthesis.resume();
+               }
+         }
+
+
+        // --- Audio Initialization and Control ---
+        function initializeBackgroundAudio() {
+            for (let i = 0; i < LEVEL_COUNT; i++) { // Iterar até LEVEL_COUNT
+                const audioElement = document.getElementById(`bg-audio-${i}`);
+                if (audioElement) {
+                    if (!audioElement.getAttribute('src') || audioElement.getAttribute('src') === '#') {
+                        console.warn(`Background audio source for level ${i} is missing.`);
+                        audioElement.hasValidSource = false;
+                    } else {
+                        audioElement.hasValidSource = true;
+                        audioElement.volume = 0; // Start silent
+                    }
+                    backgroundAudioElements.push(audioElement);
+                } else {
+                     console.warn(`Audio element bg-audio-${i} not found! Check HTML.`); // Aviso em vez de erro
+                     backgroundAudioElements.push(null); // Keep array length consistent
+                }
+            }
+             // Verifica se há mais elementos de áudio do que níveis (pode acontecer se HTML for copiado)
+             let extraAudioIndex = LEVEL_COUNT;
+             while (document.getElementById(`bg-audio-${extraAudioIndex}`)) {
+                 console.warn(`Extra audio element bg-audio-${extraAudioIndex} found and will not be used.`);
+                 extraAudioIndex++;
+             }
+        }
+
+        function fadeAudio(audioElement, targetVolume, duration) {
+            if (!audioElement || !audioElement.hasValidSource) return; // Don't fade invalid elements
+
+            const id = audioElement.id;
+            clearInterval(fadeIntervals[id]); // Clear existing interval for this element
+
+            const startVolume = audioElement.volume;
+            const deltaVolume = targetVolume - startVolume;
+            if (Math.abs(deltaVolume) < 0.01) { // Already at target
+                audioElement.volume = targetVolume;
+                 if (targetVolume < 0.01 && !audioElement.paused) audioElement.pause(); // Pause if faded out
+                return;
+            }
+
+            const stepTime = 50; // ms per step
+            const steps = duration / stepTime;
+            const volumeStep = deltaVolume / steps;
+            let currentStep = 0;
+
+             // Start playing if fading in and paused
+             if (targetVolume > 0 && audioElement.paused) {
+                 audioElement.play().catch(e => console.warn(`Failed to play ${id}:`, e));
+             }
+
+            fadeIntervals[id] = setInterval(() => {
+                currentStep++;
+                let newVolume = startVolume + volumeStep * currentStep;
+
+                if ((volumeStep > 0 && newVolume >= targetVolume) || (volumeStep < 0 && newVolume <= targetVolume) || currentStep >= steps) {
+                    // Reached target or end of steps
+                    audioElement.volume = targetVolume;
+                    clearInterval(fadeIntervals[id]);
+                    delete fadeIntervals[id];
+                     if (targetVolume < 0.01 && !audioElement.paused) { // Pause only if fully faded out
+                         audioElement.pause();
+                         // console.log(`Paused ${id}`);
+                     }
+                    // console.log(`Fade complete for ${id} to ${targetVolume}`);
+                } else {
+                    audioElement.volume = newVolume;
+                }
+            }, stepTime);
+        }
+
+        function updateBackgroundAudio(targetVisualLevelIndex) {
+            let targetAudioIndex = -1; // Default to silence
+
+             if (targetVisualLevelIndex >= 0 && targetVisualLevelIndex < LEVEL_COUNT) {
+                 targetAudioIndex = targetVisualLevelIndex; // Play audio corresponding to the visual level
+             }
+            // Fade out after last level visual segment
+             if (targetVisualLevelIndex >= LEVEL_COUNT) targetAudioIndex = -1;
+
+            if (targetAudioIndex !== currentBackgroundAudioIndex) {
+                // console.log(`Changing background audio from ${currentBackgroundAudioIndex} to ${targetAudioIndex}`);
+                // Fade out current
+                if (currentBackgroundAudioIndex !== -1 && backgroundAudioElements[currentBackgroundAudioIndex]) {
+                    fadeAudio(backgroundAudioElements[currentBackgroundAudioIndex], 0, AUDIO_FADE_DURATION);
+                }
+                // Fade in new
+                if (targetAudioIndex !== -1 && backgroundAudioElements[targetAudioIndex]) {
+                    fadeAudio(backgroundAudioElements[targetAudioIndex], 0.5, AUDIO_FADE_DURATION); // Target volume 0.5
+                }
+                currentBackgroundAudioIndex = targetAudioIndex;
+            }
+         }
+
+
+        // --- TTS Voice Loading ---
+        function loadVoices() {
+            if (!('speechSynthesis' in window)) { console.warn("Speech Synthesis not supported."); uiElements.audioStatus.textContent = "Áudio não suportado"; uiElements.audioStatus.style.display = 'block'; voicesLoaded = true; return; }
+            const checkVoices = () => {
+                const voices = speechSynthesis.getVoices();
+                if (voices.length > 0) {
+                    portugueseVoice = voices.find(voice => voice.lang === 'pt-BR') || voices.find(voice => voice.lang.startsWith('pt-'));
+                    if (!portugueseVoice) { console.warn("Voz PT não encontrada, usando padrão."); portugueseVoice = voices.find(voice => voice.default) || voices[0]; }
+                    voicesLoaded = true; console.log(`Voices loaded. Using: ${portugueseVoice?.name} (${portugueseVoice?.lang})`);
+                    uiElements.audioStatus.style.display = 'none';
+                } else if (!voicesLoaded) { // Only show 'preparing' if not yet loaded
+                    uiElements.audioStatus.textContent = "Preparando áudio...";
+                    uiElements.audioStatus.style.display = 'block';
+                }
+            };
+            checkVoices(); // Check immediately
+            speechSynthesis.onvoiceschanged = checkVoices; // Listen for changes
+             // Fallback if onvoiceschanged doesn't fire reliably
+             setTimeout(() => { if (!voicesLoaded) checkVoices(); }, 1000);
+        }
+
+        // --- Tunnel/Object Creation ---
+        function createParticleTunnelSegment(level) {
+            const geometry = new THREE.BufferGeometry(); const positions = []; const colors = [];
+            const baseColor = new THREE.Color(level.color); const segmentLength = level.endZ - level.startZ;
+            for (let i = 0; i < PARTICLE_COUNT_PER_SEGMENT; i++) {
+                const angle = Math.random() * Math.PI * 2; const radiusFactor = 1 - Math.pow(Math.random(), 2);
+                const radiusOffset = (Math.random() - 0.5) * TUNNEL_RADIUS * 0.3; const radius = (TUNNEL_RADIUS * radiusFactor) + radiusOffset;
+                const x = Math.cos(angle) * radius; const y = Math.sin(angle) * radius; const z = level.startZ + Math.random() * segmentLength;
+                positions.push(x, y, z); const colorVariation = (Math.random() - 0.5) * 0.3;
+                const particleColor = baseColor.clone().offsetHSL(0, 0, colorVariation); colors.push(particleColor.r, particleColor.g, particleColor.b);
+             }
+             geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3)); geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+             const material = new THREE.PointsMaterial({ size: 0.16, vertexColors: true, transparent: true, opacity: 0.85, depthWrite: false, blending: THREE.AdditiveBlending });
+             const points = new THREE.Points(geometry, material); points.userData = { levelIndex: level.index, startZ: level.startZ, endZ: level.endZ }; points.name = `ParticleSegment_${level.index}`;
+             scene.add(points); particleSystems.push(points);
+         }
+        function createLevelSegments() { LEVEL_DATA.forEach(createParticleTunnelSegment); }
+        function createInteractionObjects() { LEVEL_DATA.forEach((l, i) => createMissionObject(i)); createFinalMissionTriggerObject(); }
+        function createMissionObject(levelIndex) {
+             const level = LEVEL_DATA[levelIndex]; const geometry = new THREE.IcosahedronGeometry(1.2, 0);
+             const material = new THREE.MeshStandardMaterial({ color: level.color, emissive: level.color, emissiveIntensity: 0.9, roughness: 0.2, metalness: 0.1, transparent: true, opacity: 0.95, depthWrite: false });
+             const missionObj = new THREE.Mesh(geometry, material); missionObj.position.set(0, 0, level.startZ + LEVEL_SEGMENT_LENGTH * 0.45); // Posição no segmento
+             missionObj.userData = { interactionType: 'mission', levelIndex: levelIndex }; missionObj.name = `MissionObj_${levelIndex}`; missionObj.visible = !gameState.missionsCompleted[levelIndex];
+             scene.add(missionObj); interactionObjects.push(missionObj); missionObjects[levelIndex] = missionObj;
+         }
+        function createFinalMissionTriggerObject() { // Aparece após a última missão ser concluída
+             const finalLevel = LEVEL_DATA[LEVEL_COUNT - 1]; const geometry = new THREE.TorusKnotGeometry(1.2, 0.35, 120, 18);
+             // Cor pode ser a do último nível ou uma cor especial de finalização
+             const triggerColor = CHAKRA_COLORS[LEVEL_COUNT -1] || 0xffcc66; // Usa a cor do último nível (Conexão Superior)
+             const material = new THREE.MeshStandardMaterial({ color: triggerColor, emissive: triggerColor, emissiveIntensity: 1.1, roughness: 0.1, metalness: 0.4, depthWrite: false });
+             finalMissionTriggerObject = new THREE.Mesh(geometry, material);
+             // Posicionado *depois* do segmento final
+             finalMissionTriggerObject.position.set(0, 0, finalLevel.endZ + LEVEL_SEGMENT_LENGTH * 0.3); // Ajuste a distância conforme necessário
+             finalMissionTriggerObject.userData = { interactionType: 'final_mission_trigger' }; finalMissionTriggerObject.name = `FinalMissionTrigger`;
+             // Começa invisível, torna-se visível ao completar a última missão
+             finalMissionTriggerObject.visible = false;
+             scene.add(finalMissionTriggerObject); interactionObjects.push(finalMissionTriggerObject);
+             console.log(`Created final mission trigger object at Z=${finalMissionTriggerObject.position.z.toFixed(2)} (initially hidden)`);
+         }
+        function createFinalFocusPointObject() { // O ponto para onde a câmera vai na animação final
+             const geometry = new THREE.SphereGeometry(1.0, 32, 16);
+             // Cor branca/brilhante para o foco final
+             const material = new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: 0xffffff, emissiveIntensity: 1.5, toneMapped: false, transparent: true, opacity: 0.9, depthWrite: false, blending: THREE.AdditiveBlending, roughness: 0.0, metalness: 0.0 });
+             finalFocusPointObject = new THREE.Mesh(geometry, material);
+             finalFocusPointObject.position.set(0, 0, FINAL_FOCUS_Z); // Posicionado bem à frente
+             finalFocusPointObject.userData = { interactionType: 'final_guidance' }; finalFocusPointObject.name = "FinalFocusPoint";
+             finalFocusPointObject.visible = false; // Começa invisível
+             scene.add(finalFocusPointObject); console.log(`Created final focus point object at Z=${FINAL_FOCUS_Z} (initially hidden)`);
+         }
+
+
+        // --- Core Animation Loop ---
+        function animate() {
+            requestAnimationFrame(animate);
+            const delta = clock.getDelta();
+            const elapsedTime = clock.getElapsedTime();
+
+            // --- Camera Movement ---
+            // Final Animation Zoom In (Position Lerp)
+            if (gameState.isFinalAnimationPlaying) {
+                const targetZ = FINAL_FOCUS_Z - FINAL_ARRIVAL_DISTANCE * 2; // Chegar um pouco antes do ponto
+                const targetPosition = new THREE.Vector3(0, 0, targetZ);
+                camera.position.lerp(targetPosition, delta * FINAL_ANIMATION_SPEED);
+
+                if (Math.abs(camera.position.z - targetZ) < FINAL_ARRIVAL_DISTANCE) {
+                    console.log("Final animation complete. Reached focus point vicinity.");
+                    camera.position.z = targetZ;
+                    gameState.isFinalAnimationPlaying = false;
+                    gameState.finalFocusReached = true; // Flag para indicar que chegamos
+                    gameState.cameraSpeed = 0; // Ensure stopped
+                    // A verificação da interação final (checkFinalGuidanceInteraction) agora pode ocorrer
+                }
+            }
+            // Normal Movement (respecting flags)
+            else if (!gameState.isModalOpen && !gameState.isFinalAnimationPlaying && !gameState.finalFocusReached) {
+                const stopDistance = INTERACTION_DISTANCE * 1.5;
+                 if (finalMissionTriggerObject?.visible && (finalMissionTriggerObject.position.z - camera.position.z) < stopDistance) {
+                      gameState.cameraSpeed *= 0.96; // Smoother slow down near end trigger
+                      gameState.cameraSpeed = Math.max(0.005, gameState.cameraSpeed); // Prevent stopping completely before trigger
+                  } else {
+                      // Gradually return to base speed if not near end trigger or modal/audio active
+                      if (!gameState.isAudioPlaying) { // Only accelerate if TTS isn't playing
+                           gameState.cameraSpeed += (BASE_CAMERA_SPEED - gameState.cameraSpeed) * 0.05; // Smooth acceleration
+                       }
+                  }
+                 camera.position.z += gameState.cameraSpeed;
+            }
+
+            // --- State Update (Level Index & Background Audio) ---
+            let currentVisualLevelIndex = -1; // Determine visual level independent of game state
+             if (camera.position.z < LEVEL_DATA[0].startZ) {
+                 currentVisualLevelIndex = -1;
+             } else {
+                 for (let i = LEVEL_COUNT - 1; i >= 0; i--) {
+                     if (camera.position.z >= LEVEL_DATA[i].startZ) {
+                         currentVisualLevelIndex = i;
+                         break;
+                     }
+                 }
+             }
+            // Update background audio based on the VISUAL level the camera is currently in
+            updateBackgroundAudio(currentVisualLevelIndex);
+
+             // --- Update UI Level Indicator (uses gameState.currentLevelIndex) ---
+             let displayLevelIndexForUI = -1; // Índice a ser mostrado na UI
+             if (gameState.finalGuidanceActive) displayLevelIndexForUI = LEVEL_COUNT + 1; // Estado final "Centro Atingido"
+             else if (gameState.finalFocusReached) displayLevelIndexForUI = LEVEL_COUNT + 0.5; // Estado "Conectando..."
+             else if (gameState.isFinalAnimationPlaying) displayLevelIndexForUI = LEVEL_COUNT; // Estado "Integrando..."
+             else if (currentVisualLevelIndex >= LEVEL_COUNT) displayLevelIndexForUI = LEVEL_COUNT - 0.5; // Passou último nível, antes da animação final
+             else if (currentVisualLevelIndex >= 0) displayLevelIndexForUI = currentVisualLevelIndex; // Dentro de um nível visual
+             else displayLevelIndexForUI = -1; // Antes do primeiro nível
+
+            // Só atualiza a UI se o estado mudou
+             if (displayLevelIndexForUI !== gameState.currentLevelIndex) {
+                 gameState.currentLevelIndex = displayLevelIndexForUI;
+                 updateUI(); // Update visual indicator text
+             }
+
+
+            // --- Check Interactions ---
+            // Only check if nothing else major is happening (modal, final sequence, guidance shown)
+            if (!gameState.isModalOpen && !gameState.isFinalAnimationPlaying && !gameState.finalFocusReached && !gameState.finalGuidanceActive) {
+                checkInteractions();
+            }
+             // Special check ONLY for the final guidance interaction after arrival
+             else if (gameState.finalFocusReached && !gameState.finalGuidanceActive) {
+                 checkFinalGuidanceInteraction(); // <<< Verifica proximidade do ponto final
+             }
+
+
+            // --- Object Animations ---
+            interactionObjects.forEach(obj => {
+                 if(obj.visible && obj.userData?.interactionType === 'mission') { obj.rotation.y += delta * 0.15; obj.rotation.x += delta * 0.08; }
+            });
+            if (finalMissionTriggerObject?.visible) {
+                finalMissionTriggerObject.rotation.x += delta * 0.2; finalMissionTriggerObject.rotation.y += delta * 0.3;
+            }
+             if (finalFocusPointObject?.visible && !gameState.isFinalAnimationPlaying) { // Keep animating focus point after arrival
+                 const scale = 1.0 + Math.sin(elapsedTime * 5) * 0.15;
+                 finalFocusPointObject.scale.set(scale, scale, scale);
+                 finalFocusPointObject.rotation.y += delta * 0.5;
+             }
+
+            renderer.render(scene, camera);
+        }
+
+        // --- Interaction Logic ---
+        function checkInteractions() {
+             // Don't check if modal is open, TTS is playing (waiting for modal), or in final states
+             if (gameState.isModalOpen || gameState.isAudioPlaying || gameState.isFinalAnimationPlaying || gameState.finalFocusReached || gameState.finalGuidanceActive) return;
+
+            let closestInteractable = null;
+            let minDistance = INTERACTION_DISTANCE;
+
+             // Check regular missions and the final trigger
+             interactionObjects.forEach(obj => {
+                 if (!obj.visible) return;
+                 const distance = camera.position.distanceTo(obj.position);
+                 const interactionData = obj.userData;
+                 if (distance < minDistance) {
+                     let isValid = false;
+                     if (interactionData.interactionType === 'mission') {
+                         const levelIndex = interactionData.levelIndex;
+                         // Only trigger if not already completed AND unlocked AND no modal pending for *another* level
+                         if (levelIndex <= gameState.maxUnlockedLevelIndex && !gameState.missionsCompleted[levelIndex] && gameState.pendingModalLevelIndex === null) {
+                             isValid = true;
+                         }
+                     } else if (interactionData.interactionType === 'final_mission_trigger') {
+                         // Trigger só é válido se a última missão (índice LEVEL_COUNT - 1) foi completada
+                         if (gameState.missionsCompleted[LEVEL_COUNT - 1]) {
+                             isValid = true;
+                         }
+                     }
+                     if (isValid) {
+                         minDistance = distance;
+                         closestInteractable = obj;
+                     }
+                 }
+             });
+
+            // --- Trigger Interaction ---
+            if (closestInteractable) {
+                const interactionData = closestInteractable.userData;
+                 console.log(`Interaction triggered: ${closestInteractable.name}, Type: ${interactionData.interactionType}`);
+
+                 if (interactionData.interactionType === 'mission') {
+                     const levelIndex = interactionData.levelIndex;
+                     // Set pending modal level FIRST, then play audio
+                     gameState.pendingModalLevelIndex = levelIndex;
+                     playDeepeningAudio(levelIndex); // Audio plays while camera moves
+                     // Camera is NOT stopped here
+                 } else if (interactionData.interactionType === 'final_mission_trigger') {
+                     gameState.cameraSpeed = 0; // Stop camera for final trigger
+                     startFinalAnimation(); // <<< Inicia a animação final
+                     closestInteractable.visible = false; // Esconde o objeto gatilho
+                 }
+            }
+        }
+
+        // Separate check for the final guidance object interaction
+         function checkFinalGuidanceInteraction() {
+             // Só verifica se chegou ao ponto final, a caixa final ainda não foi mostrada, e o objeto existe/está visível
+             if (!gameState.finalFocusReached || gameState.finalGuidanceActive || !finalFocusPointObject || !finalFocusPointObject.visible) return;
+
+             const distToFinal = camera.position.distanceTo(finalFocusPointObject.position);
+             // Precisa estar bem perto do ponto de foco para ativar a caixa final
+             const interactionThreshold = INTERACTION_DISTANCE * 0.75; // Ajuste se necessário
+
+            // console.log(`Checking final guidance interaction. Dist: ${distToFinal.toFixed(2)}, Threshold: ${interactionThreshold}`); // Debug
+
+             if (distToFinal < interactionThreshold) {
+                 console.log("Close enough to final focus point, triggering final guidance text box.");
+                 showFinalGuidanceText(); // <<< Mostra a caixa final
+                 // O ponto de foco pode continuar visível
+             }
+         }
+
+        // --- TTS Function ---
+        function playDeepeningAudio(levelIndex) {
+            if (!('speechSynthesis' in window) || !voicesLoaded) {
+                console.warn("TTS not ready, skipping audio for level", levelIndex);
+                if (gameState.pendingModalLevelIndex === levelIndex) {
+                    gameState.cameraSpeed = 0;
+                    startMissionModal(levelIndex);
+                    gameState.pendingModalLevelIndex = null;
+                }
+                return;
+            }
+             // Verifica se existe a missão para o índice dado
+             const levelData = LEVEL_DATA[levelIndex];
+             if (!levelData || !MISSION_DATA[levelData.missionKey]) {
+                 console.error(`Mission data not found for level index ${levelIndex}`);
+                 if (gameState.pendingModalLevelIndex === levelIndex) gameState.pendingModalLevelIndex = null; // Clear pending if data is bad
+                 return;
+             }
+             const mission = MISSION_DATA[levelData.missionKey];
+             if (!mission.deepeningAudioText) {
+                 console.warn(`No deepening audio text found for level ${levelIndex}`);
+                 // Se não houver texto, podemos pular direto para o modal? Ou só não tocar nada?
+                 // Vamos pular para o modal neste caso.
+                  if (gameState.pendingModalLevelIndex === levelIndex) {
+                      gameState.cameraSpeed = 0; // Stop camera now
+                      startMissionModal(levelIndex);
+                      gameState.pendingModalLevelIndex = null;
+                  }
+                 return;
+              }
+
+             // If other TTS is playing, cancel it and update the pending modal index
+             if (speechSynthesis.speaking || speechSynthesis.pending) { // Check pending too
+                 console.log("Interrupting previous TTS for level", gameState.pendingModalLevelIndex);
+                 speechSynthesis.cancel();
+                 // A flag isAudioPlaying será resetada no onend/onerror do utterance cancelado
+             }
+
+             // Set the *new* pending level *before* speaking
+             gameState.pendingModalLevelIndex = levelIndex;
+             // console.log("Setting pending modal index to:", levelIndex);
+
+            const utterance = new SpeechSynthesisUtterance(mission.deepeningAudioText);
+            if (portugueseVoice) utterance.voice = portugueseVoice;
+            utterance.pitch = 1.0; utterance.rate = 0.9; utterance.volume = 0.9;
+
+            utterance.onstart = () => {
+                // console.log(`TTS started for pending level ${gameState.pendingModalLevelIndex}.`);
+                gameState.isAudioPlaying = true;
+                uiElements.audioStatus.textContent = "Ouvindo guia..."; uiElements.audioStatus.style.display = 'block';
+                // DO NOT stop camera here
+            };
+
+            utterance.onend = () => {
+                // console.log(`TTS finished naturally for pending level ${gameState.pendingModalLevelIndex}.`);
+                gameState.isAudioPlaying = false; // Reset flag
+                uiElements.audioStatus.style.display = 'none';
+
+                 // Check if a modal is *still* pending for *this specific* level
+                 if (gameState.pendingModalLevelIndex === levelIndex) {
+                     // console.log("TTS ended, triggering modal for level", levelIndex);
+                     gameState.cameraSpeed = 0; // Stop camera NOW
+                     startMissionModal(levelIndex); // Show the modal
+                     gameState.pendingModalLevelIndex = null; // Clear the flag *after* showing modal
+                 } else {
+                      // console.log(`TTS ended for ${levelIndex}, but pending modal is now ${gameState.pendingModalLevelIndex} (or null). Modal skipped.`);
+                      // Se o pending foi limpo (e.g., pelo botão close), não faz nada.
+                      // Se o pending mudou para *outro* nível (TTS interrompido), o novo onend cuidará disso.
+                  }
+            };
+
+            utterance.onerror = (event) => {
+                console.error(`TTS Error for pending level ${gameState.pendingModalLevelIndex}:`, event.error);
+                gameState.isAudioPlaying = false; // Reset flag
+                uiElements.audioStatus.textContent = "Erro no áudio"; uiElements.audioStatus.style.display = 'block'; // Mantenha visível para indicar erro
+
+                // Attempt to show modal even on error, if one is pending for this level
+                 if (gameState.pendingModalLevelIndex === levelIndex) {
+                     console.warn("TTS error, attempting to show modal anyway for level", levelIndex);
+                     gameState.cameraSpeed = 0;
+                     startMissionModal(levelIndex);
+                     gameState.pendingModalLevelIndex = null;
+                 }
+                 // Clear status after a delay? Or leave it showing error? Let's clear after delay.
+                 setTimeout(() => {
+                     if (uiElements.audioStatus.textContent === "Erro no áudio") {
+                         uiElements.audioStatus.style.display = 'none';
+                     }
+                 }, 3000);
+            };
+
+            try {
+                 // Garante que a fila está limpa antes de falar (caso o cancel não tenha sido imediato)
+                  speechSynthesis.cancel();
+                  // Atraso mínimo para garantir que cancel foi processado em alguns browsers
+                  setTimeout(() => {
+                      speechSynthesis.speak(utterance);
+                  }, 50);
+            } catch (error) {
+                console.error("Speak call failed:", error); utterance.onerror({ error: "Speak call failed" });
+            }
+         }
+
+
+        // --- Mission Logic ---
+        function startMissionModal(levelIndex) {
+             // console.log(`Attempting to show mission modal for level ${levelIndex}.`);
+             // Verifica se a missão é válida e desbloqueada
+             if (levelIndex < 0 || levelIndex >= LEVEL_COUNT || gameState.missionsCompleted[levelIndex] || levelIndex > gameState.maxUnlockedLevelIndex) {
+                 console.warn(`Modal prevented for level ${levelIndex}. Completed: ${!!gameState.missionsCompleted[levelIndex]}, MaxUnlocked: ${gameState.maxUnlockedLevelIndex}`);
+                 // Garante que não fique preso se algo der errado
+                 if(gameState.pendingModalLevelIndex === levelIndex) gameState.pendingModalLevelIndex = null;
+                 if(!gameState.isFinalAnimationPlaying && !gameState.finalFocusReached) gameState.cameraSpeed = BASE_CAMERA_SPEED; // Resume if stuck
+                 return;
+             }
+
+             // Camera should already be stopped here by the caller (TTS onend/onerror/skip)
+             gameState.isModalOpen = true; // Set flag
+             uiElements.modal.style.display = 'flex'; // Show modal
+
+            const level = LEVEL_DATA[levelIndex];
+            const mission = MISSION_DATA[level.missionKey];
+            let modalHTML = `<div class="meditation-text"><h4 style="border-color:${new THREE.Color(level.color).getStyle()}">${mission.title} (${level.name})</h4>${mission.description}</div>`;
+            uiElements.modalContent.innerHTML = modalHTML;
+            const button = document.createElement('button');
+            button.textContent = "Concluir Exploração e Integrar"; button.className = "meditation-button";
+            button.onclick = () => completeMissionTask(levelIndex);
+            uiElements.missionInteractionArea.innerHTML = ''; uiElements.missionInteractionArea.appendChild(button);
+            // openModal() call replaced by direct flag/display set above
+         }
+
+        function completeMissionTask(levelIndex) {
+             if(gameState.missionsCompleted[levelIndex]) return; console.log(`Mission task completed level ${levelIndex}.`);
+             gameState.missionsCompleted[levelIndex] = true; const missionObj = missionObjects[levelIndex]; if (missionObj) missionObj.visible = false;
+
+             // Desbloqueia o próximo nível se este era o último desbloqueado
+             if (levelIndex === gameState.maxUnlockedLevelIndex && levelIndex < LEVEL_COUNT - 1) {
+                 gameState.maxUnlockedLevelIndex++;
+                 console.log(`Level ${gameState.maxUnlockedLevelIndex} (${LEVEL_DATA[gameState.maxUnlockedLevelIndex].name}) unlocked!`);
+             }
+
+             // Se completou a ÚLTIMA missão (índice LEVEL_COUNT - 1), torna o gatilho final visível
+             if (levelIndex === LEVEL_COUNT - 1) {
+                 if (finalMissionTriggerObject) {
+                     finalMissionTriggerObject.visible = true;
+                     console.log("Final mission completed! Final trigger object is now visible.");
+                 } else {
+                     console.error("Final mission trigger object not found after completing last level!");
+                 }
+             }
+
+             updateUI(); closeModal();
+         }
+
+        // --- Final Sequence Logic (Modificada) ---
+        function startFinalAnimation() {
+            console.log("Starting final animation towards focus point.");
+            gameState.isFinalAnimationPlaying = true;
+            gameState.cameraSpeed = 0; // Garante parada antes da animação LERP
+            if (finalFocusPointObject) {
+                finalFocusPointObject.visible = true; // Mostra o ponto de foco
+                 console.log("Final focus point is now visible.");
+             } else {
+                 console.error("Final focus point object not found for final animation!");
+             }
+             // Esconder o trigger já é feito em checkInteractions
+             updateUI(); // Atualiza UI para "Integrando..."
+        }
+
+        // **NOVA Função para mostrar a caixa final com o link**
+        function showFinalGuidanceText() {
+            if (gameState.finalGuidanceActive) return; // Evita mostrar múltiplas vezes
+            console.log("Displaying final guidance text box with redirection link.");
+            gameState.finalGuidanceActive = true; // Marca que a caixa final está ativa
+
+            const finalMessage = `
+                Você integrou todas as camadas e alcançou o núcleo.
+                A jornada da consciência é contínua.<br>
+                <strong><a href="https://edaraujofilho.criadorlw.com.br/aula1pics" target="_blank" rel="noopener noreferrer">Clique aqui para prosseguir para a próxima etapa.</a></strong>
+            `;
+
+            uiElements.finalGuidanceBox.innerHTML = finalMessage;
+            uiElements.finalGuidanceBox.style.display = 'block'; // Mostra a caixa
+
+            updateUI(); // Atualiza a UI para "Centro Atingido" ou similar
+            // Não precisamos mais da lógica do NPC ou de posicionamento complexo
+        }
+
+        // Função mantida para o link na caixa final
+        function redirectToExternalSite() {
+             // Esta função agora é chamada implicitamente pelo clique no link <a>
+             console.log("Redirecting to external site via link click...");
+             // A ação de window.open está no href do link agora.
+             // window.open('https://edaraujofilho.criadorlw.com.br/aula1pics', '_blank');
+        }
+
+        // Função handleKeyPress removida ou esvaziada se não tiver outras funções
+        // function handleKeyPress(event) { /* Vazio ou removido */ }
+
+
+        // --- UI Logic ---
+        // function openModal() { /* Não mais necessária, lógica movida para startMissionModal */ }
+
+        function closeModal() { // Resumes camera *if* appropriate
+            gameState.isModalOpen = false; uiElements.modal.style.display = 'none';
+            // Só resume a câmera se não estivermos na animação final ou já no ponto final
+             if(!gameState.isAudioPlaying && !gameState.isFinalAnimationPlaying && !gameState.finalFocusReached) {
+                 gameState.cameraSpeed = BASE_CAMERA_SPEED; // Resume speed
+                 // console.log("Resuming camera speed after modal close.");
+             }
+             uiElements.modalContent.innerHTML = ''; uiElements.missionInteractionArea.innerHTML = '';
+        }
+
+        function updateUI() {
+            let levelName = "Carregando..."; let levelColor = '#cccccc';
+             // Usa gameState.currentLevelIndex que reflete o estado do jogo (incluindo final)
+
+            if (gameState.finalGuidanceActive) { // Caixa final visível
+                levelName = "Centro Atingido"; levelColor = '#ffffff';
+            } else if (gameState.finalFocusReached) { // Chegou ao ponto, antes da caixa
+                levelName = "Conectando..."; levelColor = '#ffffff';
+            } else if (gameState.isFinalAnimationPlaying) { // Durante a animação final
+                levelName = "Integrando..."; levelColor = '#eeeeff';
+            } else if (gameState.currentLevelIndex === LEVEL_COUNT - 0.5) { // Passou último nível, antes da animação
+                levelName = "Pronto para Finalizar"; levelColor = '#ffffff';
+            } else if (gameState.currentLevelIndex >= 0 && gameState.currentLevelIndex < LEVEL_COUNT) { // Dentro de um nível normal
+                 const displayLevelIndex = Math.floor(gameState.currentLevelIndex); // Garante índice inteiro
+                 const displayLevel = LEVEL_DATA[displayLevelIndex];
+                 // Mostra o nome do nível atual e progresso
+                 const progressStatus = `(${displayLevelIndex + 1}/${LEVEL_COUNT})`;
+                 levelName = `${displayLevel.name} ${progressStatus}`;
+                 levelColor = new THREE.Color(displayLevel.color).getStyle();
+                 // Poderia adicionar lógica para mostrar "(Integrado)" se já passou mas visualmente ainda está lá
+            } else if (gameState.currentLevelIndex === -1) { // Antes do início
+                 levelName = "Iniciando Jornada";
+             }
+            // Caso de erro ou estado inesperado
+             else { levelName = "Explorando..."; }
+
+            uiElements.currentLevelName.textContent = levelName; uiElements.currentLevelName.style.color = levelColor;
+        }
+
+        // --- NEW: Mouse Wheel Handler for Zoom ---
+        function handleMouseWheel(event) {
+            // Prevent default page scrolling
+            event.preventDefault();
+
+            // Calculate new FOV based on scroll direction
+            let newFov = camera.fov - (event.deltaY * 0.01 * ZOOM_SENSITIVITY); // Invert deltaY sign if needed, adjust multiplier
+
+            // Clamp the FOV to the defined limits
+            newFov = Math.max(MIN_FOV, Math.min(MAX_FOV, newFov));
+
+            // Update camera FOV and projection matrix
+            camera.fov = newFov;
+            camera.updateProjectionMatrix();
+
+            // Optional: Log the current FOV for debugging
+            // console.log("Camera FOV:", camera.fov.toFixed(1));
+        }
+
+
+        function setupUIEventListeners() {
+            uiElements.closeModalButton.addEventListener('click', () => {
+                 // Se o TTS estiver falando quando o modal for fechado, pare o TTS.
+                 if (speechSynthesis.speaking || speechSynthesis.pending) {
+                     // console.log("Cancelling speech via modal close button.");
+                     speechSynthesis.cancel(); // Isso vai acionar onend/onerror do utterance
+                 }
+                 // Limpa o estado de modal pendente, pois o usuário cancelou.
+                 if(gameState.pendingModalLevelIndex !== null) {
+                     // console.log("Clearing pending modal due to close button.");
+                     gameState.pendingModalLevelIndex = null;
+                 }
+                 // Redefine o estado de áudio (será corrigido pelo onend/onerror se estava tocando)
+                 // gameState.isAudioPlaying = false;
+                 // uiElements.audioStatus.style.display = 'none';
+                 closeModal(); // Fecha o modal e retoma a câmera se apropriado
+            });
+
+            // --- NEW: Add Mouse Wheel Listener ---
+            window.addEventListener('wheel', handleMouseWheel, { passive: false }); // passive: false needed for preventDefault()
+
+        }
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            // --- Update FOV limits if needed based on aspect ratio (optional) ---
+            // Example: Widen max FOV slightly on very wide screens
+            // const aspect = window.innerWidth / window.innerHeight;
+            // MAX_FOV = aspect > 2 ? 110 : 100;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+         }
+
+        // --- Start ---
+        init();
+    </script>
+</body>
+</html>
